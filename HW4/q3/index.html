@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        .chart-container {
+            max-width: 1050px;
+            /* border: 3px solid red; */
+            margin: 0 auto;
+            /* auto centers the div */
+            font-family: 'Garamond';
+        }
+
+        svg {
+            /* border: 2px solid purple; */
+            overflow: visible;
+            padding-top: 5px;
+            margin-top: 10px;
+        }
+
+
+        h1 {
+            font-size: 32px;
+            line-height: 17px;
+            max-width: 950px;
+            display: inline-block;
+            /* margin: 0px 90px; */
+            font-weight: 600;
+            color: black;
+            font-family: 'Garamond';
+            padding-bottom: 0px;
+        }
+
+        h2 {
+            margin-top: 0px;
+            margin-bottom: 5px;
+            font-size: 18px;
+            line-height: 17px;
+            max-width: 950px;
+            display: inline-block;
+            /* margin: 0px 90px; */
+            font-family: 'Garamond';
+            padding-top: 0px;
+            font-weight: 100;
+        }
+
+        .pop-up {
+            position: absolute; 
+            border: 1px solid black;
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 180px;
+            pointer-events: none;
+            background-color: white;
+            padding: 10px;
+            font-family: 'Garamond';
+            font-size: 12px;
+        }
+
+        .annotation {
+            font-size: 15px;
+            font-family: nyt-franklin, arial, helvetica, sans-serif;
+            font-style: italic;
+            font-weight: 200;
+
+        }
+
+        .g-source .g-credit {
+            display: inline-block;
+            font-family: 'Garamond';
+        }
+
+        .g-credit {
+            padding-top: 40px;
+            font-size: 14px;
+            line-height: 17px;
+            max-width: 950px;
+            display: inline-block;
+            /* margin: 0px 90px; */
+            font-weight: 500;
+            color: rgb(153, 153, 153);
+            font-family: 'Garamond';
+        }
+
+        .span {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            text-size-adjust: 100%;
+            vertical-align: baseline;
+        }
+    </style>
+    <!-- add your script blocks at the end -->
+
+</head>
+
+<body>
+    <div class="chart-container">
+        <h1 class="headline">
+            The Sheer Volume of Child Poverty in the US
+        </h1>
+        <h2>
+            New data from the Census Bureau shows that almost every county in America has children living in poverty
+        </h2>
+
+        <svg width="1050px" height="500px">
+
+        </svg>
+
+        <div class="pop-up">
+        </div>
+
+        <div class="g-source">
+            <span class="g-credit"> 
+                Note: The bubbles on this graph represent the total number of children in each county considered to be in poverty by the US Census Bureau. The Census
+                <a href="https://www.census.gov/topics/income-poverty/poverty/guidance/poverty-measures.html#:~:text=If%20a%20family's%20total%20income,Index%20(CPI%2DU)."> defines</a>
+                , a child to be living in poverty if their household meets the income threshold to be "in poverty", then all children in that household are considered to be in poverty. Source: US Census Bureau, 2019.
+            </span>
+        </div>
+    </div>
+</body>
+
+
+<!-- we're using d3 version 6 (the latest version) for all out work -->
+<script src="https://d3js.org/d3.v6.min.js"></script>
+
+<!-- load topojson script -->
+<script src="https://unpkg.com/topojson@3"></script>
+
+<script>
+    console.log({ d3 })
+    console.log({ topojson })
+
+    // //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+    Promise.all([ //waits for all the data to load, then when loaded will return it all in one array called res
+        d3.json('county_topo_3.json'),
+    ])
+        .then(ready)
+        .catch((err) => {
+            console.log(err);
+        });
+
+    function ready(res) {
+        console.log(res[0])
+        let raw = res[0]
+
+        let county = topojson.feature(raw, raw.objects.county);
+        let state = topojson.feature(raw, raw.objects.state);
+
+        let width = 1050;
+        let height = 500;
+
+        console.log(county, state)
+
+        let svg = d3.select("body").select("svg")
+
+        let myProjection = d3.geoAlbersUsa()
+            .fitSize([width, height], county)
+
+        //path function
+        let path = d3.geoPath()
+            .projection(myProjection)
+
+        let innerlines = topojson.mesh(raw, raw.objects.state, function (a, b) {
+            return a != b;
+        });
+
+
+        svg
+            .selectAll(".states")
+            .data(state.features)
+            .join("path")
+            .attr("d", path)
+            .style("fill", "#eee")
+            .style("stroke", "none")
+            .style("pointer-events", "none")
+
+
+        let states = svg
+            .append("path")
+            .attr("d", path(innerlines))
+            .style("fill", "none")
+            .style("stroke", "#333")
+            .style("stroke-width", 1)
+            .style("pointer-events", "none")
+
+            
+        let counties = svg
+            .selectAll(".counties")
+            .data(county.features.filter(d => !isNaN(path.centroid(d)[0])))
+            .join("circle")
+            .attr("r", d => {return Math.sqrt(d.properties.pop_18_in_poverty/400)})
+            .attr("class", function (d) { return "counties c-" + d.properties.GEOID}) // Give circles a class name.
+            .attr("cx", d => { if (path.centroid(d)[0] == path.centroid(d)[0]) {
+                return path.centroid(d)[0]
+                    } 
+            })
+            .attr("cy", d => { if (path.centroid(d)[1] == path.centroid(d)[1]) {
+                return path.centroid(d)[1]
+            }
+            })
+            .style("fill", "orange")
+            .style("stroke", "black")
+            .style("stroke-width", .2)
+            .style("opacity", 0.75)
+        
+        let popup = d3.select(".pop-up")
+            .style("opacity", 0)
+
+        counties.on("mouseover", (event, d) => {
+
+            counties
+                .style("stroke", "#333333")
+                .style("stroke-width", .5)
+                .style("fill", "#c0cad8")
+                .style("fill-opacity", .5)
+
+            svg.select(".c-" + d.properties.GEOID)
+                .style("stroke", "black")
+                .style("stroke-width", 2)
+                .style("fill", "blue")
+                .style("fill-opacity", 1)
+                .raise()
+
+            let lang = "In <b>" + d.properties.Geo_QName
+            lang += "</br>" + "</b> there are <b>" + d3.format(",")(d.properties.pop_18_in_poverty) + "</b> children living in poverty"
+
+            popup
+                .style("opacity", 1)
+                .style("left", (event.x + 10) + "px")
+                .style("top", (event.y - 10) + "px")
+                .html(lang)
+
+        })
+
+        counties.on("mouseout", (event, d) => {
+            counties
+                .style("fill", "orange")
+                .style("stroke", "black")
+                .style("stroke-width", .2)
+                .style("fill-opacity", 0.75)
+
+            popup
+                .style("opacity", 0)
+
+        })
+
+    }
+
+
+
+
+
+
+
+
+</script>
