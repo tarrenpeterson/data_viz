@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin&display=swap" rel="stylesheet", type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Lora&display=swap" rel="stylesheet", type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Libre+Franklin:wght@100;200;300;400&family=Lora:wght@400;500;600;700&family=Merriweather:wght@300;400&family=Roboto:wght@300;400&family=Source+Sans+Pro:wght@300;400&display=swap" rel="stylesheet">    <style>
+        
+        .chart-container {
+            /* max-width: 1050px;
+            border: 3px solid red;
+            margin: 0 auto; */
+            /* auto centers the div */
+            /* font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; */
+        }
+
+        svg {
+            /* border: 2px solid purple; */
+            padding-top: 10px;
+            padding-bottom: 10px;
+            overflow: visible;
+            pointer-events: all;
+        }
+
+
+        h1 {
+            /* border: 2px solid green; */
+            text-align: center;
+            font-size: 32px;
+            /* margin-left: 20px; */
+            font-family: 'Lora', serif;
+            font-weight: 700;
+        }
+
+        h4{
+            text-align: center;
+            font-family: 'Lora', serif;
+            font-weight: 500;
+        }
+
+        .filler {
+            height: 20rem;
+            text-align: center;
+        }
+
+        .filler h2 {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 54px;
+        }
+
+
+        .filler p {
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 20px;
+            text-align: justify;
+            margin: 20px auto;
+            line-height: 1.2;
+            max-width: 600px;
+            font-weight: 300;
+            
+        }
+
+        #scrolly-overlay .scrolly {
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 24px;
+            max-width: 80rem;
+            margin: 3rem auto;
+            margin-bottom: 20px;
+            /* background-color: #f4f4f4; */
+            padding: 1rem;
+            position: relative;
+            pointer-events: all;
+
+        }
+
+        #scrolly-overlay .scrolly article {
+            padding: 0;
+            max-width: 30rem;
+            margin: 0 auto;
+            /* position: relative; */
+        }
+
+        h3 {
+            font-family: 'Lora', serif;
+        }
+
+        .boxed {
+            /* border: 1px solid green ; */
+            margin-left: 20rem;
+            width: 500px;
+            height: 300px;
+            padding-left: 20px;
+            padding-right: 20px;
+            padding-top: 5px;
+            text-align: left;
+            font-weight: 400;
+            /* background-color: #5b5b5b; */
+            transition: background-color 250ms ease-in-out;
+            /* color: #f4f4f4; */
+            }
+        
+        .boxed p {
+            display: inline-block;
+            text-align: justify;
+            font-family: 'Source Sans Pro', sans-serif;
+            font-size: 20px;
+            font-weight: 300;
+            }
+
+        #scrolly-overlay .scrolly article .step {
+            min-height: 67vh;
+            margin-bottom: 1rem;
+
+            /* margin-left: 20rem; */
+        }
+
+        #scrolly-overlay .scrolly article .step:last-of-type {
+            margin-bottom: 0;
+        }
+
+        #scrolly-overlay .scrolly article .step.is-active .boxed {
+            /* background-color: #eee; */
+            color: #333;
+        }
+
+        #scrolly-overlay .scrolly figure.sticky {
+            /* this is the key style for the chart */
+            position: sticky;
+            width: 100%;
+            height: 550px;
+            /* vh is the unit that divdes the viewport in units of 1/100 */
+            /* height is 50 vh = half the height of the viewport */
+            /* background: #969696; */
+            margin: 0;
+            top: 5vh;
+            /* this is how high it should be from top */
+            pointer-events: all;
+            left: 0;
+        }
+
+        #scrolly-overlay .scrolly figure.sticky .pop-up{
+            position: absolute; 
+            border: 1px solid black;
+            border-radius: 1px;
+            line-height: 1.2;
+            width: 180px;
+            pointer-events: none;
+            background-color: white;
+            padding: 10px;
+            font-family: 'Lora', sans-serif;
+            font-size: 12px; 
+        }
+
+        .spacer {
+            height: 80px;
+        }
+
+        .g-source .g-credit {
+            display: inline-block;
+            font-family: 'Lora', sans-serif;
+        }
+
+        .g-credit {
+            padding-left: 23rem;
+            margin: 20px auto;
+            font-size: 14px;
+            line-height: 17px;
+            max-width: 600px;
+            display: inline-block;
+            font-weight: 500;
+            color: rgb(153, 153, 153);
+            font-family: 'Lora', sans-serif;
+            text-align: justify;
+        }
+
+        .span {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            text-size-adjust: 100%;
+            vertical-align: baseline;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>
+        Mapping the Texas Power Outages, Day by Day
+    </h1>
+    <h4>
+        By Tarren Peterson
+    </h4>
+    <section class='filler'>
+
+        <p>
+            In mid-February 2021, Winter Storm Uri plunged through the central United States, bringing extremely cold weather.
+            In some places <a href=https://www.nytimes.com/interactive/2021/02/16/us/winter-storm-texas-power-outage-map.html?searchResultPosition> maximum-daily temperatures were up to 40 degrees Farenheit below average.</a>
+        </p>
+        <p>
+            In Texas, the storm hit particularly hard. In a state with typically mild winters, average daily temperatures
+            hovered around 0 degrees Farenheit for over 72 hours. The state maintains a separate electricty grid from the rest of
+            the United States and under the strain of the storm, the grid failed. As a result, millions of Texans were left without
+            power - and therefore heat - for several days. 
+        </p>
+        <p>
+            The graphic below explores how the grid failure stretched over the five days during which Texas was most impacted. Begin scrolling
+            to see the ways in which each of the 254 counties in the state was effected.
+        </p>
+    </section>
+
+    <section id='scrolly-overlay'>
+
+        <div class='scrolly'>
+
+            <!--  sticky graphic   -->
+            <figure class='sticky'>
+                <!-- <div class="chart-container"></div> -->
+                    <!-- put your chart stuff here -->
+                    <svg width="1275px" height="550px">
+                    </svg>
+                    <div class="pop-up">
+                    <!-- </div> -->
+                </div>
+            </figure>
+
+            <!--  step text   -->
+            <article>
+                <div class='step' ratio='ratio_1' data-index='0'>
+                    <div class="boxed">
+                        <h3>
+                            Sunday, Feb. 14th, 12:00 am
+                        </h3>
+                        <p>
+                        Before the storm began on Sunday night, the state's power grid showed normal levels
+                        of transmission. No single county was showing abnormal levels of power outages.
+                        </p>
+                    </div>
+                </div>
+                <div class='step' ratio='ratio_2' data-index='1'>
+                    <div class="boxed">
+                        <h3>
+                            Monday, Feb. 15th, 07:00 am
+                        </h3>
+                        <p>
+                        As forecasted temperatures were expected to dip below freezing for up to 72 hours, 
+                        the Energy Reliability Council of Texas (ERCOT) promised the state's electricity grid was ready for the storm.
+                        However, within hours of the storm hitting, a majority of counties were experiencing at least
+                        30% of customers without power. 
+                        </p>
+                    </div>
+                </div>
+                <div class='step' ratio='ratio_3' data-index='2'>
+                    <div class="boxed">
+                        <h3>
+                            Monday, Feb. 15th, 04:00 pm
+                        </h3>
+                        <p>
+                        24 hours into the storm, things have truly reached a dire level. The majority of counties
+                        on the state electrical grid have 30% customers without power. In addition, there are major 
+                        outages in the <span style="background-color: yellow">Houston metro area</span>, home to over 7 million people. 
+                        </p>
+                    </div>
+                </div>
+                <div class='step' ratio='ratio_4' data-index='3'>
+                    <div class="boxed">
+                        <h3>
+                            Tuesday, Feb. 16th, 01:00 pm
+                        </h3>
+                        <p>
+                        Now on Day 2 of the storm, state authorities have done little to restore power. Thousands of Texans are now at risk of hypothermia from exposure to the cold
+                        or carbon monoxide poisoning from heating their home with stoves or ovens.
+                        </p>
+                        <p>
+                            Outages remain severe in the <span style="background-color: yellow">Houston metro area</span>. Additionally, all counties in the <span style="background-color: orange">Austin and San Antonio metro areas</span>, 
+                            home to nearly 5 million people, have at least 30% of customers without power.
+                        </p>
+                    </div>
+                </div>
+                <div class='step' ratio='ratio_5' data-index='4'>
+                    <div class="boxed">
+                        <h3>
+                            Wednesday, Feb. 17th, 01:00 pm
+                        </h3>
+                        <p>
+                        By Day 3, there have been significant improvements in restoring power throughout the state, especially in North Central Texas,
+                        where temperatures were especially cold. However, the situation has worsened in the <span style="background-color: yellow">Houston metro area</span>, where some counties
+                        have almost 50% of customers without power.
+                        </p>
+                    </div>
+                </div>
+                <div class='step' ratio='ratio_6' data-index='5'>
+                    <div class="boxed">
+                        <h3>
+                            Thursday, Feb. 18th, 01:00 pm
+                        </h3>
+                        <p>
+                        On Day 4, the power grid has returned to normal. No county in the state has more than 10% of customers
+                        without power. 
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </div>
+        <div class="g-source">
+            <span class="g-credit"> 
+                Note: The county outage numbers shown on these maps are drawn from utility-level outages and then aggregated across each county to calculate the numbers shown here.
+                This approach assumes each utility's outages are spread equally across its service area, which is unlikely to be true. These numbers then serve as an approximation of the number of customers without electricity in each county. 
+                Source: PowerOutage.us via the Internet Archive. 
+            </span>
+        </div>
+
+    </section>
+
+    <section class='filler'> 
+        <div class="spacer"></div>
+        <p>
+            A year later, <a href='https://spectrumlocalnews.com/tx/south-texas-el-paso/news/2022/01/05/february-winter-storm-insurance-claims-at-500k'> over 500,000 insurance claims have been placed for damages sustained during the storm. </a> Almost 95% of these
+            claims were made for property damages that were likely to occur during the prolonged power outage from burst pipes or other hazards.
+            In total, the storm is estimated to have caused $10 billion in damage.
+        </p>
+        <p>
+            Worse still, state officials have estimated <a href = 'https://www.texastribune.org/2022/01/02/texas-winter-storm-final-death-toll-246/'>
+            the death toll of the storm in Texas stands at 246, though some experts believe the true death toll to be higher. </a>
+            Of those who died, almost two-thirds died from hypothermia. Other major causes of death included vehicle accidents, carbon monoxide poisoning, and fire.
+            
+        </p>
+        </br>
+        </br>
+    </section>
+</body>
+
+<!-- add your script blocks at the end -->
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script src="https://unpkg.com/enter-view@1.0.0/enter-view.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.25.6/d3-legend.min.js"></script>
+<script src="https://unpkg.com/topojson@3"></script>
+<!-- https://github.com/russellgoldenberg/enter-view -->
+
+
+<script>
+    console.log({ d3 })
+    console.log({ topojson })
+
+    // //https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
+    Promise.all([ //waits for all the data to load, then when loaded will return it all in one array called res
+        d3.json('texas_county_metro_combined.json'),
+    ])
+        .then(ready)
+        .catch((err) => {
+            console.log(err);
+        });
+
+    function ready(res) {
+        console.log(res[0])
+        let raw = res[0]
+
+        let county = topojson.feature(raw, raw.objects.county);
+        let state = topojson.feature(raw, raw.objects.state);
+        let houston = topojson.feature(raw, raw.objects.metro_houston);
+        let austin_sa = topojson.feature(raw, raw.objects.metro_austin_san_antonio)
+
+        let width = 1275;
+        let height = 530;
+
+        console.log(county, state, houston, austin_sa)
+
+        let svg = d3.select("body").select("svg")
+
+        let myProjection = d3.geoMercator()
+			.center([ -99.43,31.47 ])
+			.scale([ 2000 ])
+            .fitSize([width / 1.8, height], county);
+
+        //path function
+        let path = d3.geoPath()
+            .projection(myProjection)
+
+        let innerlines = topojson.mesh(raw, raw.objects.metro_austin_san_antonio, function (a, b) {
+            return a == b;
+        
+        });
+    
+        d3.json('outage_utility.json').then(function (data) {
+
+            let color_func = d3.scaleThreshold(
+                [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], 
+                ['#eee', '#DAD7E8', '#C5BAD3', '#BAA5C6', '#AA8BB4', '#9A72A4', '#895794', '#7C4183', '#6B2C72', '#5C165E', '#4C004C']
+            )
+
+            let label_func = function ({
+                i,
+                genLength,
+                generatedLabels,
+                labelDelimiter
+                }) {
+                    if (i == 0) {return '0%'}
+                    else if (i == 5 ) {return '50%'}
+                    else if (i == 10) {return '100%'}
+
+            }
+
+            console.log(data)
+
+            let svg_append = d3.select("svg")
+
+            let colorLegend = d3.legendColor()
+                // .shapeWidth(30)
+                .orient('horizontal')
+                .scale(color_func)
+                .cells(11)
+                .labels(label_func)
+                .title('Percent of Customers without Power')
+                .labelAlign('middle');
+            
+            svg_append.append("g")
+                .attr("class", "colorLegend")
+                .attr("transform", "translate(80,470)")
+                .style("font-size", 12)
+                .style("font-family", "Lora")
+            
+            svg_append.select(".colorLegend")
+                .call(colorLegend)
+
+            svg
+                .selectAll(".counties")
+                .data(county.features)
+                .join("path")
+                .attr("d", path)
+                .style("fill", function (d) {
+                    return color_func(data[d.properties.CNTY_FIPS]['ratio_1'])
+                })
+                .style("stroke", "white")
+                .style("pointer-events", "all")
+            
+            svg
+                .selectAll(".states")
+                .data(state.features)
+                .join("path")
+                .attr("d", path)
+                .style("fill", "none")
+                .style("stroke", "#333")
+                .style("stroke-width", 2)
+                .style("pointer-events", "none")
+            
+            
+            function stick_map(update_ratio){
+            let svg = d3.select("body").select("svg")
+            
+            let counties = svg
+                .selectAll(".counties")
+                .data(county.features)
+                .join("path")
+                .attr("d", path)
+                .attr('class', function (d) { return "counties c-" + d.properties.GID})
+                .style("fill", function (d) {
+                    return color_func(data[d.properties.CNTY_FIPS][update_ratio])
+                })
+                .style("stroke", "white")
+                .style("pointer-events", "all")
+                .raise()
+            
+            if (update_ratio == 'ratio_3' || update_ratio == 'ratio_4' || update_ratio == 'ratio_5') {
+                svg.selectAll(".houston")
+                    .data(houston.features)
+                    .join("path")
+                    .attr('d', path)
+                    .style('fill', 'transparent')
+                    .style('stroke', 'yellow')
+                    .style('stroke-width', 4)
+            }
+            else {
+                svg.selectAll(".houston")
+                    .data(houston.features)
+                    .join("path")
+                    .attr('d', path)
+                    .style('fill', 'transparent')
+                    .style('stroke', 'white')
+                    .style('stroke-width', 4)
+                counties.raise()
+            }
+
+            if (update_ratio == 'ratio_4') {
+                svg.selectAll(".austin_sa")
+                    .attr("id", "austin_id")
+                    .data(austin_sa.features)
+                    .join("path")
+                    .attr('d', path(innerlines))
+                    .style('fill', 'transparent')
+                    .style('stroke', 'orange')
+                    .style('stroke-width', 4)
+            }
+
+            svg
+                .selectAll(".states")
+                .data(state.features)
+                .join("path")
+                .attr("d", path)
+                .style("fill", "none")
+                .style("stroke", "#333")
+                .style("stroke-width", 2)
+                .style("pointer-events", "none")
+            
+            let popup = d3.select(".pop-up")
+                .style("opacity", 0)
+            
+            let county_select = svg.selectAll('.path')
+
+            counties.on("mouseover", (event, d) => {
+
+
+                svg.select(".c-" + d.properties.GID)
+                    .style("stroke", '#4C004C')
+                    .style("stroke-width", 2)
+                    .style("fill", "white")
+                    .style("fill-opacity", 1)
+                    .raise()
+
+                let lang = "In <b>" + d.properties.CNTY_NM + " County </b>"
+                lang += "</br>" + " apprixmately <b>" + Math.round(data[d.properties.CNTY_FIPS][update_ratio] * 100) + "%</b> of customers are without power"
+
+                    popup
+                        .style("opacity", 1)
+                        .style("left", (event.x - 250) + "px")
+                        .style("top", (event.y - 130) + "px")
+                        .html(lang)
+
+                    })
+            
+            counties.on("mouseout", (event, d) => {
+                svg.select(".c-" + d.properties.GID)
+                    .style('stroke', 'white')
+                    .style('stroke-width', 1)
+                    .style("fill", function (d) {
+                    return color_func(data[d.properties.CNTY_FIPS][update_ratio])
+                    })
+                
+                    svg
+                        .selectAll(".states")
+                        .data(state.features)
+                        .join("path")
+                        .attr("d", path)
+                        .style("fill", "none")
+                        .style("stroke", "#333")
+                        .style("stroke-width", 2)
+                        .style("pointer-events", "none")
+
+                popup
+                    .style("opacity", 0)
+
+        })
+
+            }
+
+            function scroll_update(ratio_state) {
+                console.log("update")
+                console.log(ratio_state)
+
+                if (ratio_state == 'ratio_1'){
+                    stick_map(ratio_state)
+                }
+                else if (ratio_state == 'ratio_2'){
+                    stick_map(ratio_state)
+                }
+                else if (ratio_state == 'ratio_3'){
+                    stick_map(ratio_state)
+                }
+                else if (ratio_state == 'ratio_4'){
+                    stick_map(ratio_state)
+                }
+                else if (ratio_state == 'ratio_5'){
+                    stick_map(ratio_state)
+                }   
+                else if (ratio_state == 'ratio_6'){
+                    stick_map(ratio_state)
+                }
+            }
+
+    const container = d3.select('#scrolly-overlay');
+    const stepSel = container.selectAll('.step'); //final all the step nodes
+
+    function updateChart(index) {
+        const sel = container.select(`[data-index='${index}']`);
+        const ratio_state = sel.attr('ratio');
+        stepSel.classed('is-active', (d, i) => i === index);
+        scroll_update(ratio_state)
+        // container.select('.bar-inner').style('width', width);
+    }
+
+    function init() {
+
+        enterView({ //our main view function
+            selector: stepSel.nodes(),
+            offset: 0.5, //when the slide is 50% away then trigger your chart
+            enter: el => { //what's supposed to happen when the slide enters?
+                const index = +d3.select(el).attr('data-index'); //extract the data-index attribute. this can be anything: a filter, a date, whatever.
+                updateChart(index);
+            },
+            exit: el => { //what's supposed to happen when the slide exits?
+                let index = +d3.select(el).attr('data-index');
+                index = Math.max(0, index - 1);
+                updateChart(index);
+            }
+        });
+
+    }
+
+    init();
+    })}
+</script>
